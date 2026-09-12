@@ -59,3 +59,7 @@ aren't documented and produce a 422 if omitted:
 23 tools across invoices, estimates, customers, and account
 info/dashboard — see [`src/tools/`](src/tools/) for the full list and
 schemas.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
