@@ -212,8 +212,8 @@ export function registerInvoiceTools(server: McpServer, api: InvoiceShelfClient)
       await api.post(`/invoices/${invoiceId}/send`, {
         from: fromEmail,
         to: customerEmail,
-        subject: subject ?? `Invoice ${invoice.invoice_number}`,
-        body: body ?? `Please find attached invoice ${invoice.invoice_number}.`,
+        subject: subject ?? `Deine Rechnung ${invoice.invoice_number}`,
+        body: body ?? `Hallo,\n\nanbei findest du deine Rechnung ${invoice.invoice_number}.\n\nViele Grüße\nTobias`,
       });
       return text(`Invoice #${invoice.invoice_number} sent to ${customerEmail} (from ${fromEmail}).`);
     },

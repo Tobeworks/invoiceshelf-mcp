@@ -200,8 +200,8 @@ export function registerEstimateTools(server: McpServer, api: InvoiceShelfClient
       await api.post(`/estimates/${estimateId}/send`, {
         from: fromEmail,
         to: customerEmail,
-        subject: subject ?? `Estimate ${estimate.estimate_number}`,
-        body: body ?? `Please find attached estimate ${estimate.estimate_number}.`,
+        subject: subject ?? `Dein Angebot ${estimate.estimate_number}`,
+        body: body ?? `Hallo,\n\nanbei findest du dein Angebot ${estimate.estimate_number}.\n\nViele Grüße\nTobias`,
       });
       return text(`Estimate #${estimate.estimate_number} sent to ${customerEmail} (from ${fromEmail}).`);
     },
