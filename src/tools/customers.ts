@@ -23,6 +23,7 @@ export function registerCustomerTools(server: McpServer, api: InvoiceShelfClient
         limit: z.number().optional(),
         search: z.string().optional(),
       },
+      annotations: { readOnlyHint: true },
     },
     async (args: { page?: number; limit?: number; search?: string }) => {
       const res = await api.get<{ data: CustomerRecord[] }>("/customers", {
@@ -40,6 +41,7 @@ export function registerCustomerTools(server: McpServer, api: InvoiceShelfClient
     {
       description: "Get full details for a single customer by ID.",
       inputSchema: { customerId: z.number() },
+      annotations: { readOnlyHint: true },
     },
     async ({ customerId }: { customerId: number }) => {
       const res = await api.get<{ data: CustomerRecord }>(`/customers/${customerId}`);
@@ -57,6 +59,7 @@ export function registerCustomerTools(server: McpServer, api: InvoiceShelfClient
         phone: z.string().optional(),
         currency_id: z.number().optional().describe("Defaults to 1 (the company's base currency)."),
       },
+      annotations: { destructiveHint: false, idempotentHint: false },
     },
     async (args: { name: string; email?: string; phone?: string; currency_id?: number }) => {
       const res = await api.post<{ data: CustomerRecord }>("/customers", {
@@ -79,6 +82,7 @@ export function registerCustomerTools(server: McpServer, api: InvoiceShelfClient
         email: z.string().optional(),
         phone: z.string().optional(),
       },
+      annotations: { destructiveHint: false, idempotentHint: true },
     },
     async ({ customerId, ...rest }: { customerId: number; [key: string]: unknown }) => {
       await api.put(`/customers/${customerId}`, rest);
@@ -91,6 +95,7 @@ export function registerCustomerTools(server: McpServer, api: InvoiceShelfClient
     {
       description: "Delete a customer by ID.",
       inputSchema: { customerId: z.number() },
+      annotations: { destructiveHint: true, idempotentHint: true },
     },
     async ({ customerId }: { customerId: number }) => {
       await api.delete(`/customers/${customerId}`);

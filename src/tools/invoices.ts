@@ -56,6 +56,7 @@ export function registerInvoiceTools(server: McpServer, api: InvoiceShelfClient)
         status: z.enum(["DRAFT", "SENT", "VIEWED", "OVERDUE", "COMPLETED", "PARTIALLY_PAID"]).optional(),
         customer_id: z.number().optional(),
       },
+      annotations: { readOnlyHint: true },
     },
     async (args) => {
       const res = await api.get<{ data: InvoiceRecord[] }>("/invoices", {
@@ -75,6 +76,7 @@ export function registerInvoiceTools(server: McpServer, api: InvoiceShelfClient)
     {
       description: "Get full details for a single invoice by ID.",
       inputSchema: { invoiceId: z.number() },
+      annotations: { readOnlyHint: true },
     },
     async ({ invoiceId }) => {
       const res = await api.get<{ data: InvoiceRecord }>(`/invoices/${invoiceId}`);
@@ -90,6 +92,7 @@ export function registerInvoiceTools(server: McpServer, api: InvoiceShelfClient)
         customerId: z.number(),
         status: z.string().optional(),
       },
+      annotations: { readOnlyHint: true },
     },
     async ({ customerId, status }) => {
       const res = await api.get<{ data: InvoiceRecord[] }>("/invoices", {
@@ -114,6 +117,7 @@ export function registerInvoiceTools(server: McpServer, api: InvoiceShelfClient)
         notes: z.string().optional(),
         template_name: z.string().optional().describe('Defaults to "tobeworks".'),
       },
+      annotations: { destructiveHint: false, idempotentHint: false },
     },
     async (args) => {
       const { items: priced, subTotal } = priceItems(args.items as LineItemInput[]);
@@ -158,6 +162,7 @@ export function registerInvoiceTools(server: McpServer, api: InvoiceShelfClient)
         template_name: z.string().optional(),
         items: z.array(lineItemSchema).optional(),
       },
+      annotations: { destructiveHint: false, idempotentHint: true },
     },
     async ({ invoiceId, items, ...rest }) => {
       let extra: Record<string, unknown> = {};
@@ -175,6 +180,7 @@ export function registerInvoiceTools(server: McpServer, api: InvoiceShelfClient)
     {
       description: "Delete an invoice by ID.",
       inputSchema: { invoiceId: z.number() },
+      annotations: { destructiveHint: true, idempotentHint: true },
     },
     async ({ invoiceId }) => {
       await api.delete(`/invoices/${invoiceId}`);
@@ -192,6 +198,7 @@ export function registerInvoiceTools(server: McpServer, api: InvoiceShelfClient)
         subject: z.string().optional(),
         body: z.string().optional(),
       },
+      annotations: { destructiveHint: false, idempotentHint: false },
     },
     async ({ invoiceId, subject, body }) => {
       const invRes = await api.get<{ data: InvoiceRecord }>(`/invoices/${invoiceId}`);

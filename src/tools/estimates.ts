@@ -48,6 +48,7 @@ export function registerEstimateTools(server: McpServer, api: InvoiceShelfClient
         search: z.string().optional(),
         customer_id: z.number().optional(),
       },
+      annotations: { readOnlyHint: true },
     },
     async (args: { page?: number; limit?: number; search?: string; customer_id?: number }) => {
       const res = await api.get<{ data: EstimateRecord[] }>("/estimates", {
@@ -66,6 +67,7 @@ export function registerEstimateTools(server: McpServer, api: InvoiceShelfClient
     {
       description: "Get full details for a single estimate by ID.",
       inputSchema: { estimateId: z.number() },
+      annotations: { readOnlyHint: true },
     },
     async ({ estimateId }: { estimateId: number }) => {
       const res = await api.get<{ data: EstimateRecord }>(`/estimates/${estimateId}`);
@@ -86,6 +88,7 @@ export function registerEstimateTools(server: McpServer, api: InvoiceShelfClient
         notes: z.string().optional(),
         template_name: z.string().optional().describe('Defaults to "tobeworks".'),
       },
+      annotations: { destructiveHint: false, idempotentHint: false },
     },
     async (args: {
       customer_id: number;
@@ -138,6 +141,7 @@ export function registerEstimateTools(server: McpServer, api: InvoiceShelfClient
         template_name: z.string().optional(),
         items: z.array(lineItemSchema).optional(),
       },
+      annotations: { destructiveHint: false, idempotentHint: true },
     },
     async ({
       estimateId,
@@ -163,6 +167,7 @@ export function registerEstimateTools(server: McpServer, api: InvoiceShelfClient
     {
       description: "Delete an estimate by ID.",
       inputSchema: { estimateId: z.number() },
+      annotations: { destructiveHint: true, idempotentHint: true },
     },
     async ({ estimateId }: { estimateId: number }) => {
       await api.delete(`/estimates/${estimateId}`);
@@ -180,6 +185,7 @@ export function registerEstimateTools(server: McpServer, api: InvoiceShelfClient
         subject: z.string().optional(),
         body: z.string().optional(),
       },
+      annotations: { destructiveHint: false, idempotentHint: false },
     },
     async ({ estimateId, subject, body }: { estimateId: number; subject?: string; body?: string }) => {
       const estRes = await api.get<{ data: EstimateRecord }>(`/estimates/${estimateId}`);
@@ -212,6 +218,7 @@ export function registerEstimateTools(server: McpServer, api: InvoiceShelfClient
     {
       description: "Convert an accepted estimate into an invoice.",
       inputSchema: { estimateId: z.number() },
+      annotations: { destructiveHint: false, idempotentHint: false },
     },
     async ({ estimateId }: { estimateId: number }) => {
       const res = await api.post<{ data: { id: number; invoice_number: string } }>(

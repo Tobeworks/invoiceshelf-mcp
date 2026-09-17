@@ -18,6 +18,7 @@ export function registerMiscTools(server: McpServer, api: InvoiceShelfClient) {
     {
       description: "Verify the API base URL and token work by calling /me.",
       inputSchema: {},
+      annotations: { readOnlyHint: true },
     },
     async () => {
       const res = await api.me();
@@ -30,6 +31,7 @@ export function registerMiscTools(server: McpServer, api: InvoiceShelfClient) {
     {
       description: "Get dashboard summary stats (totals due, paid, overdue, etc.).",
       inputSchema: {},
+      annotations: { readOnlyHint: true },
     },
     async () => {
       const res = await api.get<Record<string, unknown>>("/dashboard");
@@ -45,6 +47,7 @@ export function registerMiscTools(server: McpServer, api: InvoiceShelfClient) {
         page: z.number().optional(),
         limit: z.number().optional(),
       },
+      annotations: { readOnlyHint: true },
     },
     async (args: { page?: number; limit?: number }) => {
       const res = await api.get<{ data: UserRecord[] }>("/users", {
@@ -61,6 +64,7 @@ export function registerMiscTools(server: McpServer, api: InvoiceShelfClient) {
     {
       description: "Get full details for a single user by ID.",
       inputSchema: { userId: z.number() },
+      annotations: { readOnlyHint: true },
     },
     async ({ userId }: { userId: number }) => {
       const res = await api.get<{ data: UserRecord }>(`/users/${userId}`);
