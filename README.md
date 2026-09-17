@@ -60,6 +60,9 @@ aren't documented and produce a 422 if omitted:
 info/dashboard — see [`src/tools/`](src/tools/) for the full list and
 schemas.
 
+
+[![M8ven Score](https://m8ven.ai/badge/mcp/tobeworks/invoiceshelf-mcp)](https://m8ven.ai/mcp/tobeworks/invoiceshelf-mcp)
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
