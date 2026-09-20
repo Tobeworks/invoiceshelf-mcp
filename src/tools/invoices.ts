@@ -26,6 +26,14 @@ interface InvoiceRecord {
   total: number;
   customer_id: number;
   customer?: CustomerRef;
+  invoice_date?: string;
+  due_date?: string;
+  reference_number?: string | null;
+  notes?: string | null;
+  template_name?: string;
+  sub_total?: number;
+  tax?: number;
+  items?: unknown[];
 }
 
 /**
@@ -165,12 +173,33 @@ export function registerInvoiceTools(server: McpServer, api: InvoiceShelfClient)
       annotations: { destructiveHint: false, idempotentHint: true },
     },
     async ({ invoiceId, items, ...rest }) => {
+      // PUT validates like create, so start from the stored invoice and overlay the changes.
+      const cur = (await api.get<{ data: InvoiceRecord }>(`/invoices/${invoiceId}`)).data;
+      const base: Record<string, unknown> = {
+        customer_id: cur.customer_id,
+        invoice_number: cur.invoice_number,
+        invoice_date: cur.invoice_date?.slice(0, 10),
+        due_date: cur.due_date?.slice(0, 10),
+        reference_number: cur.reference_number,
+        notes: cur.notes,
+        template_name: cur.template_name,
+        exchange_rate: 1,
+        discount_type: "fixed",
+        discount: "0.00",
+        discount_val: 0,
+        tax_per_item: "NO",
+        discount_per_item: "NO",
+        sub_total: cur.sub_total,
+        tax: cur.tax,
+        total: cur.total,
+        items: cur.items,
+      };
       let extra: Record<string, unknown> = {};
       if (items) {
         const { items: priced, subTotal } = priceItems(items as LineItemInput[]);
         extra = { items: priced, sub_total: subTotal, tax: 0, total: subTotal };
       }
-      await api.put(`/invoices/${invoiceId}`, { ...rest, ...extra });
+      await api.put(`/invoices/${invoiceId}`, { ...base, ...rest, ...extra });
       return text(`Invoice #${invoiceId} updated.`);
     },
   );
