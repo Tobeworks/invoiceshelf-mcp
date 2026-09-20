@@ -124,12 +124,36 @@ export function registerInvoiceTools(server: McpServer, api: InvoiceShelfClient)
         reference_number: z.string().optional(),
         notes: z.string().optional(),
         template_name: z.string().optional().describe('Defaults to "tobeworks".'),
+        tax_percent: z
+          .number()
+          .optional()
+          .describe("Adds the existing tax type with this percentage (e.g. 19) on the whole invoice. Omit for no tax."),
       },
       annotations: { destructiveHint: false, idempotentHint: false },
     },
     async (args) => {
       const { items: priced, subTotal } = priceItems(args.items as LineItemInput[]);
       const invoiceNumber = args.invoice_number ?? (await nextInvoiceNumber(api));
+
+      let tax = 0;
+      let taxes: unknown[] = [];
+      if (args.tax_percent) {
+        const types = await api.get<{ data: { id: number; name: string; percent: number }[] }>("/tax-types");
+        const type = types.data.find((t) => Number(t.percent) === args.tax_percent);
+        if (!type) throw new Error(`No tax type with ${args.tax_percent}% exists, create it in InvoiceShelf first.`);
+        tax = Math.round((subTotal * type.percent) / 100);
+        taxes = [
+          {
+            tax_type_id: type.id,
+            name: type.name,
+            percent: type.percent,
+            amount: tax,
+            compound_tax: 0,
+            calculation_type: "percentage",
+            type: "GENERAL",
+          },
+        ];
+      }
 
       const payload = {
         customer_id: args.customer_id,
@@ -146,8 +170,9 @@ export function registerInvoiceTools(server: McpServer, api: InvoiceShelfClient)
         tax_per_item: "NO",
         discount_per_item: "NO",
         sub_total: subTotal,
-        tax: 0,
-        total: subTotal,
+        tax,
+        total: subTotal + tax,
+        taxes,
         items: priced,
       };
 
